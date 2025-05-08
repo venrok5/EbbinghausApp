@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Show</title>
+    
+    <script src= "https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    <script src= "https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.5.0/math.js"></script>
+    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    
+     <link rel="stylesheet" href="/css/sessionPage.css">
+
+</head>
+
+
+<body>
+<div class="container">
+
+<div th:if="${currentEvent == null}">
+	<a th:text="${eventMessage}">time</a>
+</div>
+
+
+<div class="modal" id="modal">
+	<div class="modal-content">
+		<span class="closeBtn" onclick="document.getElementById('modal').style.display='none'">×</span>
+		<p th:text="'Title: ' + ${current.getName()}">VALUE</p>
+		<p th:text="'Start at: ' + ${current.whenStartedDisplay()}">VALUE</p>
+		<p th:text="'End at: ' + ${current.whenEndedDisplay()}">VALUE</p>
+		<p th:text="'Duration: ' + ${current.daysNumber()} + ' days'">VALUE</p>
+		<p th:text="'Events number: ' + ${current.eventsNumber()} + ' days'">VALUE</p>
+		<div th:if="${current.getDescription()} != null">
+			<p th:text="'Description: ' + ${current.getDescription()}">VALUE</p>
+		</div>
+		<div th:if="${current.getDescription()} == null">
+			<p>Description: </p>
+		</div>
+		
+		<form th:action="@{/session/{id}/edit(id=${current.getSession_id()})}" th:method="GET">
+    		<input type="submit" value="Edit" />
+		</form>
+	</div>
+</div>
+
+<div th:if="${currentEvent != null}">
+	<a th:text="${eventMessage}">time</a>
+	<form th:method="POST" th:action="@{/session/{id}/complete?eventId={id2} (id=${current.getSession_id()}, id2=${currentEvent.getEvent_id()})}">
+    <button type="submit">Complete</button>
+</form>
+</div>
+
+<h2>All repetitions</h2>
+<div th:each="event : ${events}">
+	<div th:if="${event.getIsComplete()}">
+		<input th:type="checkbox" th:id="${event.getPositionNumber()}" th:name="${event.getIndex()}" class="options" /> 
+		<s th:text="${event.displayTime}">time</s> 
+		<div class="clear"></div>
+	</div>
+	<div th:if="!${event.getIsComplete()}">
+		<input th:type="checkbox" th:id="${event.getPositionNumber()}" th:name="${event.getIndex()}" class="options" />
+		<a th:text="${event.displayTime}">time</a> 
+		<div class="clear"></div>
+	</div>
+</div>
+
+<button id="openPlotBtn">build forgetting curves</button>
+
+<button id="openBtn">session details</button>
+
+<form th:method="GET" th:action="@{/files/show/{id}(id=${current.getSession_id()})}">
+	<button type="submit">check materials</button>
+</form>
+
+
+
+
+<form th:method="GET" th:action="@{/user}">
+    <button type="submit">back</button>
+</form>
+   
+
+<div class="modal-plot" id="modal-plot">
+	<div class="modal-plot-content">
+		<span class="closeBtn2" onclick="document.getElementById('modal-plot').style.display='none'">×</span>
+        <div class="main-content">
+            <div class="graph" id="graph"></div>
+        </div>
+	</div>
+</div>
+
+</div>
+<script src="/js/script.js"></script>
+
+   <script th:inline="javascript">
+   function drawGraphs() {
+	    var selected = new Array();
+	    var indices  = new Array();
+
+	    $("input[type=checkbox]:checked").each(function () {
+	        selected.push(this.id);
+	        indices.push(this.name);
+	    });
+
+	    plotGraph(selected.sort(function(a, b) {
+	    	  return a - b;
+	    }), indices.sort(function(a, b) {
+	    	  return a - b;
+	    }));  
+   }
+    
+   function plotGraph(selectedArray, indicesArray) {
+            const graph = document.getElementById('graph');
+            graph.innerHTML = '';
+
+            /*<![CDATA[*/
+
+            var endPoint = /*[[${endTime}]]*/ 'default';
+            var count = /*[[${daysCount}]]*/ 'default';
+
+       		 /*]]>*/
+       		count += count/100 * 10;
+            console.log(count);
+            const forgettingCurve = '100*(1.25)/(((log(x))^(1.84)+1.25))';
+           
+            const expr = math.parse(forgettingCurve).compile();
+
+            const xValues = math.range(1, count, 0.001)._data;
+            const yValues = xValues.map(x => expr.evaluate({ x }));
+
+            const trace1 = {
+                x: xValues,
+                y: yValues,
+                type: 'scatter',
+                mode: 'lines',
+            };
+            
+            var data = [trace1];
+    	    
+            
+            selectedArray = Array.isArray(selectedArray) ? selectedArray : [selectedArray];
+            
+            for (let i = 1; i <= selectedArray.length; i++) {
+            	
+            	const dx = parseInt(selectedArray[i-1]);
+            	const dy = 10*parseInt(indicesArray[i-1]);
+            	
+            	func = dy+'+100*(1.25)/(((log(x-'+dx+'))^(1.84)+1.25))';
+            	const funcExpr = math.parse(func).compile();
+            	
+            	const startPointX = Math.pow(10, math.pow(125/(100-dy)-1.25, 1/1.84) );
+            	const xValuesFunc = math.range(1, count, 0.001)._data;
+            	const yValuesFunc = xValues.map(x => {
+            		let y = funcExpr.evaluate({ x });
+            		if (y <= 100) {
+            			return y;
+            		}
+            	});
+            	
+ 	            const trace = {
+ 	                    x: xValuesFunc,
+ 	                    y: yValuesFunc,
+ 	                    type: 'scatter',
+ 	                    mode: 'lines',
+ 	                };
+ 	            
+ 	            data.push(trace);
+            }
+            
+            const layout = {
+                xaxis: { 
+                	title: 'days'
+                	},
+                yaxis: { 
+                	title: '%'
+                	},
+            };
+
+            Plotly.newPlot(graph, data, layout);
+        }
+    
+	</script>
+	
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+    <link rel="stylesheet" href="/css/sessionPage.css">
+</head>
+<body>
+<div class="container">
+<form th:method="POST" th:action="@{/session/new}" th:object="${current}">
+    <label for="name">Tatle name: </label>
+    <input type="text" th:field="*{name}" id="name"/>
+    <div style="color:red" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</div>
+    <br/>
+    <label for="startdate">Start date and time: </label>
+    <input type="text" th:field="*{startDate}" id="startdate"/>
+    <div style="color:red" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}">Startdate Error
+    </div>
+    <br/>
+    <label for="enddate">End date and time: </label>
+    <input type="text" th:field="*{endDate}" id="enddate"/>
+    <div style="color:red" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}">Enddate Error</div>
+    <br/>
+    <br>
+    <label for="description">Description: </label>
+    <input type="text" th:field="*{description}" id="description"/>
+    <div style="color:red" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Description Error</div>
+    <br/>
+    <button type="submit">Create session</button>
+</form>
+
+<form th:method="GET" th:action="@{/user}">
+    <button type="submit">Back</button>
+</form>
+</div>
+
+</body>
+</html>

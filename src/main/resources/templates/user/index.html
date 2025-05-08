@@ -1,0 +1,47 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <link rel="stylesheet" href="/css/user.css">
+</head>
+<body>
+
+<div class="container">
+    
+    <button id="openBtn">Account</button>
+    
+    <form th:action="@{/session/new}" th:method="POST">
+    		<button type="submit">New session</button> 
+	</form>
+    
+    <div class="info-list">
+		<div th:each="s : ${sessions}" class="sessions" id="sessions">
+	    	<a 
+	    	th:href="@{/session/{id}(id=${s.getSession_id()})}"
+	        th:text="${s.getName()}">user</a>
+	        <br>
+	        <hr>
+		</div>
+	</div>
+
+</div>
+
+
+<div class="modal" id="modal">
+	<div class="modal-content">
+		<span class="closeBtn" onclick="document.getElementById('modal').style.display='none'">×</span>
+		<p th:text="${user.getUsername()}">VALUE</p>
+		<p th:text="${'Email: ' + user.getEmail()}">VALUE</p>
+	
+		<form th:action="@{/user/update}" th:method="GET">
+    		<input type="submit" value="Edit" />
+		</form>
+		
+		<form th:action="@{/logout}" th:method="POST">
+    		<input type="submit" value="Logout" />
+		</form>
+	</div>
+</div>
+<script src="/js/script.js"></script>
+</body>
+</html>

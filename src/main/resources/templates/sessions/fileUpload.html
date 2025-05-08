@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+</head>
+<body>
+
+<form action="POST" th:action="@{/session/{id}/upload(id=${session_id})}"
+		enctype="multipart/form-data">FILE <input type="file" name="file">
+		<br>
+		<input type="submit" value="Upload file">
+</form>
+
+<form action="GET" th:action="@{/session/{id}(id=${session_id})}">
+		<input type="submit" value="Continue">
+</form>
+
+</body>
+</html>

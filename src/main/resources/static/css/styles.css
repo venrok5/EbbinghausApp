@@ -1,0 +1,69 @@
+/* General page styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Container styling */
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Logo styling */
+.container img {
+    max-width: 100%; /* Ensures the image doesn't exceed the container's width */
+    height: auto; /* Maintains aspect ratio */
+    display: block; /* Prevents inline spacing issues */
+    margin: 0 auto 15px; /* Centers the image */
+}
+
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="submit"],
+button {
+    width: calc(100% - 20px);
+    max-width: 260px;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; 
+}
+
+input[type="submit"],
+button {
+    background-color: #5c67f2;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover,
+button:hover {
+    background-color: #4a54e1;
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+}
